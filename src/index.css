@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-gold-50: #fdfaf0;
+  --color-gold-100: #f9f1d8;
+  --color-gold-200: #f1e0ac;
+  --color-gold-300: #e7c875;
+  --color-gold-400: #dbaa43;
+  --color-gold-500: #c5a028;
+  --color-gold-600: #b18621;
+  --color-gold-700: #94671e;
+  --color-gold-800: #7b531f;
+  --color-gold-900: #69451e;
+  --color-gold-950: #3c240e;
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 antialiased;
+  }
+}
