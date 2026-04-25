@@ -119,10 +119,37 @@ export default function App() {
     message: ""
   });
 
-  const handleSubmit = (e: FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    alert("Inquiry Sent. Our team will contact you within 24 hours.");
-    setFormData({ name: "", phone: "", email: "", projectType: "", message: "" });
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitStatus({ type: 'success', message: data.message || "Inquiry Sent. Our team will contact you within 24 hours." });
+        setFormData({ name: "", phone: "", email: "", projectType: "", message: "" });
+      } else {
+        setSubmitStatus({ type: 'error', message: data.message || "Failed to send inquiry. Please try again or call us directly." });
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      setSubmitStatus({ type: 'error', message: "A connection error occurred. Please try again later." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -385,13 +412,26 @@ export default function App() {
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
                 ></textarea>
               </div>
-              <div className="md:col-span-2">
+              <div className="md:col-span-2 space-y-4">
                 <button 
                   type="submit"
-                  className="w-full py-6 bg-black text-gold-400 font-black uppercase tracking-[0.3em] text-sm hover:bg-gold-500 hover:text-black transition-all shadow-xl shadow-black/10 active:scale-[0.99]"
+                  disabled={isSubmitting}
+                  className="w-full py-6 bg-black text-gold-400 font-black uppercase tracking-[0.3em] text-sm hover:bg-gold-500 hover:text-black transition-all shadow-xl shadow-black/10 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send Inquiry
+                  {isSubmitting ? "Sending..." : "Send Inquiry"}
                 </button>
+
+                {submitStatus && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-4 text-xs font-bold uppercase tracking-widest text-center ${
+                      submitStatus.type === 'success' ? 'bg-green-50/10 text-green-600 border border-green-200' : 'bg-red-50/10 text-red-600 border border-red-200'
+                    }`}
+                  >
+                    {submitStatus.message}
+                  </motion.div>
+                )}
               </div>
             </form>
           </div>
